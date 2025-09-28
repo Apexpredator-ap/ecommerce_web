@@ -1,7 +1,9 @@
+import 'package:ecommerce_web/screens/home/home_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/auth_provider.dart';
 import '../utils/colors.dart';
+import '../wrappers/auth_wrappers.dart';
 import 'auth/login_screen.dart';
 import 'main_screen.dart';
 
@@ -38,22 +40,25 @@ class _SplashScreenState extends State<SplashScreen>
     _animationController.forward();
 
     Future.delayed(const Duration(seconds: 3), () {
-      _navigateToNextScreen();
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(builder: (_) => const AuthWrapper()),
+      );
     });
+
   }
 
-  void _navigateToNextScreen() {
-    final authProvider = Provider.of<AuthProvider>(context, listen: false);
-    if (authProvider.isAuthenticated) {
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (_) => const MainScreen()),
-      );
-    } else {
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (_) => const LoginScreen()),
-      );
-    }
-  }
+  // void _navigateToNextScreen() {
+  //   final authProvider = Provider.of<AuthProvider>(context, listen: false);
+  //   if (authProvider.isAuthenticated) {
+  //     Navigator.of(context).pushReplacement(
+  //       MaterialPageRoute(builder: (_) => const HomeScreen()),
+  //     );
+  //   } else {
+  //     Navigator.of(context).pushReplacement(
+  //       MaterialPageRoute(builder: (_) => const LoginScreen()),
+  //     );
+  //   }
+  // }
 
   @override
   Widget build(BuildContext context) {

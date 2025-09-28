@@ -1,3 +1,4 @@
+import 'package:ecommerce_web/screens/home/home_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/auth_provider.dart';
@@ -13,14 +14,17 @@ class RegisterScreen extends StatefulWidget {
 
 class _RegisterScreenState extends State<RegisterScreen> {
   final _formKey = GlobalKey<FormState>();
+  final _nameController = TextEditingController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
+
   bool _obscurePassword = true;
   bool _obscureConfirmPassword = true;
 
   @override
   void dispose() {
+    _nameController.dispose();
     _emailController.dispose();
     _passwordController.dispose();
     _confirmPasswordController.dispose();
@@ -30,11 +34,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
   void _signUp() async {
     if (_formKey.currentState?.validate() ?? false) {
       try {
-        await Provider.of<AuthProvider>(context, listen: false)
-            .signUp(_emailController.text, _passwordController.text);
+        await Provider.of<AuthProvider>(context, listen: false).signUp(
+          _emailController.text.trim(),
+          _passwordController.text.trim(),
+          _nameController.text.trim(),
+        );
 
         Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (_) => const MainScreen()),
+          MaterialPageRoute(builder: (_) => const HomeScreen()),
         );
       } catch (e) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -89,13 +96,27 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           width: 80,
                           height: 80,
                           decoration: BoxDecoration(
-                            color: AppColors.accent,
+                            color: AppColors.background,
                             borderRadius: BorderRadius.circular(40),
                           ),
-                          child: const Icon(
-                            Icons.spa,
-                            size: 40,
-                            color: AppColors.primary,
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(40),
+                            child: Stack(
+                              children: [
+                                Positioned(
+                                  left: 18,
+                                  top: 10,
+                                  right: 15,
+                                  bottom: 10,
+                                  child: Image.asset(
+                                    "assets/icons/logo_icon.png",
+                                    width: 200,
+                                    height: 200,
+                                    fit: BoxFit.cover,
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
                         ),
                         const SizedBox(height: 20),
@@ -115,7 +136,28 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             color: AppColors.grey,
                           ),
                         ),
-                        const SizedBox(height: 40),
+                        const SizedBox(height: 30),
+
+                        // Name field
+                        TextFormField(
+                          controller: _nameController,
+                          decoration: InputDecoration(
+                            labelText: 'Full Name',
+                            prefixIcon: const Icon(Icons.person),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+                          validator: (value) {
+                            if (value?.isEmpty ?? true) {
+                              return 'Please enter your name';
+                            }
+                            return null;
+                          },
+                        ),
+                        const SizedBox(height: 20),
+
+                        // Email field
                         TextFormField(
                           controller: _emailController,
                           decoration: InputDecoration(
@@ -137,6 +179,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           },
                         ),
                         const SizedBox(height: 20),
+
+                        // Password field
                         TextFormField(
                           controller: _passwordController,
                           obscureText: _obscurePassword,
@@ -168,6 +212,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           },
                         ),
                         const SizedBox(height: 20),
+
+                        // Confirm Password field
                         TextFormField(
                           controller: _confirmPasswordController,
                           obscureText: _obscureConfirmPassword,
@@ -200,6 +246,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           },
                         ),
                         const SizedBox(height: 30),
+
+                        // Sign Up button
                         Consumer<AuthProvider>(
                           builder: (context, auth, child) {
                             return SizedBox(
@@ -220,14 +268,15 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                     : const Text(
                                   'Sign Up',
                                   style: TextStyle(
-                                      fontSize: 16,
-                                      color: Colors.white),
+                                      fontSize: 16, color: Colors.white),
                                 ),
                               ),
                             );
                           },
                         ),
                         const SizedBox(height: 20),
+
+                        // Sign In link
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [

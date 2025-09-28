@@ -1,5 +1,7 @@
+import 'package:ecommerce_web/screens/home/home_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter/foundation.dart'; // For kIsWeb
 import '../../providers/auth_provider.dart';
 import '../../utils/colors.dart';
 import '../main_screen.dart';
@@ -17,9 +19,63 @@ class _LoginScreenState extends State<LoginScreen> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   bool _obscurePassword = true;
+  bool _rememberMe = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadSavedCredentials();
+  }
+
+  void _loadSavedCredentials() async {
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+    final credentials = await authProvider.getSavedCredentials();
+    if (credentials != null) {
+      setState(() {
+        _emailController.text = credentials['email'] ?? '';
+        _passwordController.text = credentials['password'] ?? '';
+        _rememberMe = true;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
+    // Check if running on web
+    if (!kIsWeb) {
+      return Scaffold(
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                Icons.web,
+                size: 64,
+                color: AppColors.primary,
+              ),
+              SizedBox(height: 20),
+              Text(
+                'Web Only Feature',
+                style: TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.primary,
+                ),
+              ),
+              SizedBox(height: 10),
+              Text(
+                'Login is only available on web version',
+                style: TextStyle(
+                  fontSize: 16,
+                  color: AppColors.grey,
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
     return Scaffold(
       body: LayoutBuilder(
         builder: (context, constraints) {
@@ -45,12 +101,12 @@ class _LoginScreenState extends State<LoginScreen> {
                     borderRadius: BorderRadius.circular(isWeb ? 16 : 0),
                     boxShadow: isWeb
                         ? [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.1),
-                              blurRadius: 20,
-                              offset: const Offset(0, 10),
-                            ),
-                          ]
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.1),
+                        blurRadius: 20,
+                        offset: const Offset(0, 10),
+                      ),
+                    ]
                         : null,
                   ),
                   child: Form(
@@ -59,30 +115,6 @@ class _LoginScreenState extends State<LoginScreen> {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         const SizedBox(height: 20),
-                        // Container(
-                        //   width: 80,
-                        //   height: 80,
-                        //   decoration: BoxDecoration(
-                        //     color: AppColors.background,
-                        //     borderRadius: BorderRadius.circular(
-                        //       40,
-                        //     ), // circular container
-                        //   ),
-                        //   child: ClipRRect(
-                        //     borderRadius: BorderRadius.circular(40),
-                        //     // ensures image respects the circle
-                        //     child: Image.asset(
-                        //       "assets/icons/qw.png",
-                        //       fit: BoxFit.cover,
-                        //
-                        //       // position the image
-                        //       // alignment: Alignment(
-                        //       //   -0.1,
-                        //       //   -1,
-                        //       // ), // fills the container
-                        //     ),
-                        //   ),
-                        // ),
                         Container(
                           width: 80,
                           height: 80,
@@ -95,10 +127,10 @@ class _LoginScreenState extends State<LoginScreen> {
                             child: Stack(
                               children: [
                                 Positioned(
-                                  left: 18,      // distance from left
-                                  top: 10,      // distance from top
-                                  right: 15,  // can leave null
-                                  bottom: 10, // can leave null
+                                  left: 18,
+                                  top: 10,
+                                  right: 15,
+                                  bottom: 10,
                                   child: Image.asset(
                                     "assets/icons/logo_icon.png",
                                     width: 200,
@@ -110,7 +142,6 @@ class _LoginScreenState extends State<LoginScreen> {
                             ),
                           ),
                         ),
-
                         const SizedBox(height: 20),
                         const Text(
                           'Welcome Back',
@@ -180,7 +211,41 @@ class _LoginScreenState extends State<LoginScreen> {
                             return null;
                           },
                         ),
-                        const SizedBox(height: 30),
+                        const SizedBox(height: 15),
+                        Row(
+                          children: [
+                            Checkbox(
+                              value: _rememberMe,
+                              onChanged: (value) {
+                                setState(() {
+                                  _rememberMe = value ?? false;
+                                });
+                              },
+                              activeColor: AppColors.primary,
+                            ),
+                            const Text(
+                              'Remember me',
+                              style: TextStyle(
+                                color: AppColors.grey,
+                                fontSize: 14,
+                              ),
+                            ),
+                            const Spacer(),
+                            TextButton(
+                              onPressed: () {
+                                // TODO: Implement forgot password
+                              },
+                              child: const Text(
+                                'Forgot Password?',
+                                style: TextStyle(
+                                  color: AppColors.primary,
+                                  fontSize: 14,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 20),
                         Consumer<AuthProvider>(
                           builder: (context, auth, child) {
                             return SizedBox(
@@ -196,30 +261,20 @@ class _LoginScreenState extends State<LoginScreen> {
                                 ),
                                 child: auth.isLoading
                                     ? const CircularProgressIndicator(
-                                        color: Colors.white,
-                                      )
+                                  color: Colors.white,
+                                )
                                     : const Text(
-                                        'Sign In',
-                                        style: TextStyle(
-                                          fontSize: 16,
-                                          color: Colors.white,
-                                        ),
-                                      ),
+                                  'Sign In',
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    color: Colors.white,
+                                  ),
+                                ),
                               ),
                             );
                           },
                         ),
-                        const SizedBox(height: 20),
-                        TextButton(
-                          onPressed: () {
-                            // TODO: Implement forgot password
-                          },
-                          child: const Text(
-                            'Forgot Password?',
-                            style: TextStyle(color: AppColors.primary),
-                          ),
-                        ),
-                        const SizedBox(height: 20),
+                        const SizedBox(height: 30),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
@@ -260,10 +315,10 @@ class _LoginScreenState extends State<LoginScreen> {
         await Provider.of<AuthProvider>(
           context,
           listen: false,
-        ).signIn(_emailController.text, _passwordController.text);
+        ).signIn(_emailController.text, _passwordController.text, _rememberMe);
 
         Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (_) => const MainScreen()),
+          MaterialPageRoute(builder: (_) => const HomeScreen()),
         );
       } catch (e) {
         ScaffoldMessenger.of(
