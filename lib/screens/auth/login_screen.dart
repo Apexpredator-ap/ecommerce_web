@@ -24,20 +24,20 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   void initState() {
     super.initState();
-    _loadSavedCredentials();
+    // _loadSavedCredentials();
   }
 
-  void _loadSavedCredentials() async {
-    final authProvider = Provider.of<AuthProvider>(context, listen: false);
-    final credentials = await authProvider.getSavedCredentials();
-    if (credentials != null) {
-      setState(() {
-        _emailController.text = credentials['email'] ?? '';
-        _passwordController.text = credentials['password'] ?? '';
-        _rememberMe = true;
-      });
-    }
-  }
+  // void _loadSavedCredentials() async {
+  //   final authProvider = Provider.of<AuthProvider>(context, listen: false);
+  //   final credentials = await authProvider.getSavedCredentials();
+  //   if (credentials != null) {
+  //     setState(() {
+  //       _emailController.text = credentials['email'] ?? '';
+  //       _passwordController.text = credentials['password'] ?? '';
+  //       _rememberMe = true;
+  //     });
+  //   }
+  // }
 
   @override
   Widget build(BuildContext context) {
